@@ -271,7 +271,7 @@ private static void asyncCreateTestScenariosWithJira(){
 
 ## VISION NOVA
 
-<b>VISION NOVA</b> allows you to create test scenarios for the app screen and also allows you to create accessibility tests. Provide your
+<b>VISION NOVA</b> allows you to create test scenarios for the app screen and also allows you to create accessibility tests. Provide your publicly accessible image url
 
 Lets look at using it with SyncClient
 
@@ -282,7 +282,7 @@ private static void createTestVisionNovaScenarios(){
         String QYRUS_AI_SDK_API_TOKEN = dotenv.get("QYRUS_AI_SDK_API_TOKEN");
 
         SyncClient client = new SyncClient(QYRUS_AI_SDK_API_TOKEN, null);
-        String image_url = "https://s3-us-west-2.amazonaws.com/ctc-qa-ai/ai/demo/public/images/home-loan-screenshot.png";
+        String image_url = <IMAGE_URL>;
 
         long startTime = System.currentTimeMillis();
         int numberOfRequests = 2;
@@ -322,13 +322,122 @@ private static void createTestVisionNovaScenarios(){
 With Async Client 
 
 ```
+private static void asyncCreateTestVisionNovaScenarios(){
+        Dotenv dotenv = Dotenv.load();
+        String QYRUS_AI_SDK_API_TOKEN = dotenv.get("QYRUS_AI_SDK_API_TOKEN");
+
+        AsyncClient client = new AsyncClient(QYRUS_AI_SDK_API_TOKEN, null);
+        String image_url = "https://s3-us-west-2.amazonaws.com/ctc-qa-ai/ai/demo/public/images/home-loan-screenshot.png";
+        int numberOfRequests = 2;
+
+        long startTime = System.currentTimeMillis();
+
+        List<CompletableFuture<AsyncVisionNovaFunctionalTests.CreateScenariosResponse>> futures = new ArrayList<>();
+
+        for (int i = 0; i < numberOfRequests; i++) {
+
+            CompletableFuture<AsyncVisionNovaFunctionalTests.CreateScenariosResponse> responseFuture = client.vision_nova.functional_tests.create(image_url);
+        
+        
+            responseFuture.thenAccept(response -> {
+            if (response.isOk()) {
+                System.out.println("Creation Status: " + response.isOk());
+                System.out.println("Message: " + response.getMessage());
+                System.out.println("Creation Status: " + response.getVisionNovaRequestId());
+
+                for (AsyncVisionNovaFunctionalTests.Scenario scenario : response.getScenarios()) {
+                    System.out.println("Scenario Name: " + scenario.getScenarioName());
+                    System.out.println("Scenario Objective: " + scenario.getScenarioObjective());
+                    System.out.println("Scenario Description: " + scenario.getScenarioDescription());
+                    System.out.println("Scenario Steps: " + scenario.getSteps());
+                    
+                    System.out.println("--------------------------------------");
+                }
+
+            }
+            else {
+                System.out.println("Creation failed with message: " + response.getMessage());
+            }
+        }).exceptionally(ex -> {
+            System.out.println("An error occurred: " + ex.getMessage());
+            ex.printStackTrace();
+            return null;
+        });
+
+        // // Keep your program running until all futures are resolved
+        // responseFuture.join(); // Block and wait for the future to complete
+        futures.add(responseFuture);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Asynchronous total time for Vision Nova Functional Tests" + numberOfRequests + " requests: " + (endTime - startTime) + " ms");
+    }
+
+    
+```
+
+#### VISION NOVA for accessiblity tests
+
+With Sync client
+
+```
+private static void createTestVisionNovaAccessibilityTests(){
+
+        Dotenv dotenv = Dotenv.load();
+        String QYRUS_AI_SDK_API_TOKEN = dotenv.get("QYRUS_AI_SDK_API_TOKEN");
+
+
+        SyncClient client = new SyncClient(QYRUS_AI_SDK_API_TOKEN, null);
+        String image_url = "https://s3-us-west-2.amazonaws.com/ctc-qa-ai/ai/demo/public/images/home-loan-screenshot.png";
+
+        long startTime = System.currentTimeMillis();
+        int numberOfRequests = 2;
+
+        for (int i = 0; i < numberOfRequests; i++) {
+            try {
+                VisionNovaAccessibilityTests.CreateScenariosResponse response = client.vision_nova.accessibility_tests.create(image_url);
+                System.out.println("Creation Status: " + response.isOk());
+                System.out.println("Creation Status: " + response.getMessage());
+        
+                //Show all the scenarios generated
+                if (response != null && response.isOk() == true && response.getAccessibilityScenarios() != null) {
+                    System.out.println("Creation Status: " + response.getVisionNovaRequestId());
+
+                    List<VisionNovaAccessibilityTests.AccessibilityScenario> scenarios = response.getAccessibilityScenarios();
+
+                    // Loop over the list and print out scenarios
+                    for (VisionNovaAccessibilityTests.AccessibilityScenario scenario : scenarios) {
+                        System.out.println("Accessibility type: " + scenario.getAccessibilityType());
+                        System.out.println("Accessibility Comment: " + scenario.getAccessibilityComment());
+                        
+                        
+                        System.out.println("--------------------------------------");
+                    }
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println("Synchronous total time for Vision Nova with Accessibility" + numberOfRequests + " requests: " + (endTime - startTime) + " ms");
+    }
+
+    
+```
+
+With Async Client
+
+```
 private static void asyncCreateTestVisionNovaAccessibilityTests(){
 
         Dotenv dotenv = Dotenv.load();
         String QYRUS_AI_SDK_API_TOKEN = dotenv.get("QYRUS_AI_SDK_API_TOKEN");
 
         AsyncClient client = new AsyncClient(QYRUS_AI_SDK_API_TOKEN, null);
-        String image_url = "https://s3-us-west-2.amazonaws.com/ctc-qa-ai/ai/demo/public/images/home-loan-screenshot.png";
+        String image_url = <IMAGE_URL>;
     
         int numberOfRequests = 2;
         
@@ -891,7 +1000,7 @@ private static void asyncTestJSONPathAssertion() {
 
 ## JSON Schema Assertions
 
-<json schema assertion> allows you to create the schema tests for the api response body. Input your api response.
+<b>json schema assertion</b> allows you to create the schema tests for the api response body. Input your api response.
 
 With SyncClient
 

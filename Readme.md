@@ -13,7 +13,7 @@ In the repo folder where pom.xml is present, run this command to create a jar in
 
 ## Obtain AI SDK API Token
 
-Get your API Token from qyrus support team or create your api token by signing up to Qyrus
+Get your API Token from qyrus support team
 
 ---------------------------------------------------------------------------
 
@@ -58,7 +58,8 @@ SyncClient client = new SyncClient(<API_TOKEN>, null);
 
 ## NOVA
 
-<b> NOVA </b> api allows you to create test cases for your use case
+
+Nova api allows you to create test cases for your use case
 using either <b> Use Case Description </b> or <b> JIRA details </b>
 
 

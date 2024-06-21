@@ -9,6 +9,8 @@ In the repo folder where pom.xml is present, run this command to create a jar in
 <br></br>
 # Usage 🚀
 
+
+
 ## Obtain AI SDK API Token
 
 Get your API Token from qyrus support team or create your api token by signing up to Qyrus
@@ -28,6 +30,15 @@ Add this dependency in your repository where you want to install this sdk in pom
     </dependency>
 </dependencies>
 ```
+
+--------------------------------------------------------------------------
+## Run the code
+
+Below you will find the samples to use the SDK
+Once you include the code, run the code using
+
+>mvn compile exec:java
+
 ---------------------------------------------------------------------------
 ## CLIENTS
 

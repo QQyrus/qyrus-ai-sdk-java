@@ -1,29 +1,50 @@
 package org.qyrus.ai_sdk.APIAssertions;
 
+import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import org.qyrus.ai_sdk.QIDP.QIDPUtils;
 import org.qyrus.ai_sdk.http.AsyncHttpClient;
 import org.qyrus.ai_sdk.util.Configurations;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class AsyncJSONPathAssertion {
 
     private final String apiKey;
     private String baseUrl;
-
+    private String gatewayToken;
+    
     public AsyncJSONPathAssertion(String apiKey, String baseUrl) {
         this.apiKey = apiKey;
-        if (baseUrl != null && !baseUrl.isEmpty()) {
-            this.baseUrl = baseUrl.replace(".qyrus.com", "-gateway.qyrus.com");
-        } else {
-            this.baseUrl = Configurations.getDefaultGateway();
+        try {
+            // Verifying the token
+            boolean tokenValid = QIDPUtils.verifyToken(apiKey);
+            if (!tokenValid) {
+                throw new RuntimeException("401: Token is not valid.");
+            }
+            
+            // Getting the gateway details
+            JsonNode gatewayDetails = QIDPUtils.getDefaultGateway(apiKey);
+            this.baseUrl = gatewayDetails.get("gatewayUrl").asText();
+            this.gatewayToken = gatewayDetails.get("gatewayToken").asText(); // Assuming gatewayToken is the field name
+            System.out.println("GATEWAY URL USED IS " + this.baseUrl);
+            // // Adjust the base URL if needed
+            // if (this.baseUrl != null) {
+            //     this.baseUrl = this.baseUrl.replace(".qyrus.com", "-gateway.qyrus.com");
+            // }
+
+        } catch (IOException | InterruptedException e) {
+            // Log the exception here
+            e.printStackTrace();
+            throw new RuntimeException("An error occurred while setting up the NovaJira instance: " + e.getMessage());
         }
     }
 

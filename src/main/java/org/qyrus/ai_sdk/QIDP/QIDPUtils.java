@@ -31,7 +31,7 @@ public class QIDPUtils {
         HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             JsonNode data = objectMapper.readTree(response.body());
-            // System.out.println("\\nDATA for verify token : " + data.toPrettyString());
+            System.out.println("\\nDATA for verify token : " + data.toPrettyString());
             return "Authentication Token Validated Successfully.".equals(data.get("message").asText());
         } else {
             throw new RuntimeException("401"); // Using RuntimeException to avoid having to declare the exception
@@ -49,7 +49,7 @@ public class QIDPUtils {
         HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
         if (response.statusCode() == 200) {
             JsonNode data = objectMapper.readTree(response.body());
-            // System.out.println("\\nDATA for gateway details : " + data.toPrettyString());
+            System.out.println("\\nDATA for gateway details : " + data.toPrettyString());
             if (data.has("status") && data.get("status").asBoolean()) {
                 ((ObjectNode) data).remove("uuid");
                 return data;

@@ -33,5 +33,10 @@ public class Configurations {
     public static String getVisionNovaContextPath(String from) {
         return "vision-nova-sdk/v1/api/" + from;
     }
+
+    public static String getLLMEvaluatorContextPath(String from){
+        return "llm-evaluator-sdk/v1/" + from;
+    }
+        
    
 }

@@ -150,6 +150,59 @@ private static void createTestScenariosWithJira(){
 }
 ```
 
+#### Using Rally
+```
+private static void createTestScenariosWithRally(){
+
+        Dotenv dotenv = Dotenv.load();
+        String QYRUS_AI_SDK_API_TOKEN = dotenv.get("QYRUS_AI_SDK_API_TOKEN");
+
+        SyncClient client = new SyncClient(QYRUS_AI_SDK_API_TOKEN, null);
+        String rally_url = "https://rally1.rallydev.com";
+        String ticket_id = "US1";
+        String rally_api_key = "Bearer _2xDz9kIvRQy9c2pXYuon5kqVWhihREGklXGOJw9hyo";
+        String workspace_name = "RALLY DEMO DATA";
+
+        long startTime = System.currentTimeMillis();
+        int numberOfRequests = 1;
+
+        for (int i = 0; i < numberOfRequests; i++) {
+
+            try {
+                NovaDescription.CreateScenariosResponse response = client.nova.from_rally.create(rally_url, rally_api_key, workspace_name, ticket_id);
+                System.out.println("Creation Status: " + response.isOk());
+                System.out.println("Creation Status: " + response.getMessage());
+
+                //Show all the scenarios generated
+                if (response != null && response.isOk() == true && response.getScenarios() != null) {
+                    System.out.println("Creation Status: " + response.getNovaRequestId());
+
+                    List<NovaDescription.Scenario> scenarios = response.getScenarios();
+
+                    // Loop over the list and print out scenarios
+                    for (NovaDescription.Scenario scenario : scenarios) {
+                        System.out.println("Test Script Name: " + scenario.getTestScriptName());
+                        System.out.println("Test Script Objective: " + scenario.getTestScriptObjective());
+                        System.out.println("Reason to Test: " + scenario.getReasonToTest());
+                        System.out.println("Criticality Description: " + scenario.getCriticalityDescription());
+                        System.out.println("Criticality Score: " + scenario.getCriticalityScore());
+                        System.out.println("--------------------------------------");
+                    }
+                }
+                
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }   
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Synchronous total time for Nova with Rally" + numberOfRequests + " requests: " + (endTime - startTime) + " ms");
+    }
+```
+
 Lets look at How to use Async client nova apis
 
 
@@ -268,6 +321,66 @@ private static void asyncCreateTestScenariosWithJira(){
 }
 ```
 
+With Rally Details
+```
+private static void asyncCreateTestScenariosWithRally(){
+
+        Dotenv dotenv = Dotenv.load();
+        String QYRUS_AI_SDK_API_TOKEN = dotenv.get("QYRUS_AI_SDK_API_TOKEN");
+
+        AsyncClient client = new AsyncClient(QYRUS_AI_SDK_API_TOKEN, null);
+        String rally_url = "https://rally1.rallydev.com";
+        String ticket_id = "US1";
+        String rally_api_key = "Bearer _2xDz9kIvRQy9c2pXYuon5kqVWhihREGklXGOJw9hyo";
+        String workspace_name = "RALLY DEMO DATA";
+
+
+        int numberOfRequests = 1;
+
+        long startTime = System.currentTimeMillis();
+
+        List<CompletableFuture<AsyncNovaDescription.CreateScenariosResponse>> futures = new ArrayList<>();
+
+        for (int i = 0; i < numberOfRequests; i++) {
+        
+            CompletableFuture<AsyncNovaDescription.CreateScenariosResponse> responseFuture = client.nova.from_rally.create(rally_url, rally_api_key, workspace_name, ticket_id);
+
+            responseFuture.thenAccept(response -> {
+                if (response.isOk()) {
+                    System.out.println("Creation Status: " + response.getNovaRequestId());
+
+                    List<AsyncNovaDescription.Scenario> scenarios = response.getScenarios();
+
+                    // Loop over the list and print out scenarios
+                    for (AsyncNovaDescription.Scenario scenario : scenarios) {
+                        System.out.println("Test Script Name: " + scenario.getTestScriptName());
+                        System.out.println("Test Script Objective: " + scenario.getTestScriptObjective());
+                        System.out.println("Reason to Test: " + scenario.getReasonToTest());
+                        System.out.println("Criticality Description: " + scenario.getCriticalityDescription());
+                        System.out.println("Criticality Score: " + scenario.getCriticalityScore());
+                        System.out.println("--------------------------------------");
+                    }
+                }
+                else {
+                    System.out.println("Creation failed with message: " + response.getMessage());
+                }
+        }).exceptionally(ex -> {
+            System.out.println("An error occurred: " + ex.getMessage());
+            ex.printStackTrace();
+            return null;
+        });
+
+        // Keep your program running until all futures are resolved
+        // responseFuture.join(); // Block and wait for the future to complete
+        futures.add(responseFuture);
+        }
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Asynchronous total time for Nova with Rally" + numberOfRequests + " requests: " + (endTime - startTime) + " ms");
+    }
+```
 
 ## VISION NOVA
 
@@ -1095,3 +1208,90 @@ private static void asyncTestJSONSchemaAssertions() {
         System.out.println("Asynchronous total time for JSON Schema Assertion: " + (endTime - startTime) + " ms");
     }
 ```
+
+## LLM Evaluator
+
+<b>LLM Evaluator</b> allows you to validate dynamic outputs against an expected output semantically.
+
+Lets look at the sync code to use it
+
+```
+private static void testLLMEvaluator() {
+
+        Dotenv dotenv = Dotenv.load();
+        String QYRUS_AI_SDK_API_TOKEN = dotenv.get("QYRUS_AI_SDK_API_TOKEN");
+
+        SyncClient client = new SyncClient(QYRUS_AI_SDK_API_TOKEN, null);
+        String context = "application is about generating dynamic text for messages on phone";
+        String expected_output = "Winning lottery of 10k$";
+        List<String> executed_output = new ArrayList<>();
+        executed_output.add("You have won 10000 dollars");
+        String guardrails = "No sensititve info";
+
+
+        long startTime = System.currentTimeMillis();
+        int numberOfRequests = 1;
+
+        for (int i = 0; i < numberOfRequests; i++) {
+            try {
+                // Assuming there is an api_builder field in SyncClient and a create method that matches the described input
+                LLMEval.LLMEvalResponse response = client.llmevaluator.evaluate(context, expected_output, executed_output, guardrails);
+                // Assuming the APIBuilderResponse class has a getSwaggerJson method to retrieve the swagger json
+                String report = response.getReport();
+                System.out.println("Report: " + report);
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Synchronous Total time for LLM Eval request: " + (endTime - startTime) + " ms");
+    }
+```
+
+Lets look at the async way to use it
+
+```
+private static void testAsyncLLMEvaluator() {
+
+        Dotenv dotenv = Dotenv.load();
+        String QYRUS_AI_SDK_API_TOKEN = dotenv.get("QYRUS_AI_SDK_API_TOKEN");
+
+        AsyncClient client = new AsyncClient(QYRUS_AI_SDK_API_TOKEN, null);
+        String context = "application is about generating dynamic text for messages on phone";
+        String expected_output = "Winning lottery of 10k$";
+        List<String> executed_output = new ArrayList<>();
+        executed_output.add("You have won 10000 dollars");
+        String guardrails = "No sensititve info";
+
+        long startTime = System.currentTimeMillis();
+        int numberOfRequests = 1;
+        List<CompletableFuture<AsyncLLMEval.LLMEvalResponse>> futures = new ArrayList<>();
+        for (int i = 0; i < numberOfRequests; i++) {
+            
+            // Assuming there is an api_builder field in SyncClient and a create method that matches the described input
+            CompletableFuture<AsyncLLMEval.LLMEvalResponse> responseFuture = client.llmevaluator.evaluate(context, expected_output, executed_output, guardrails);
+            // Assuming the APIBuilderResponse class has a getSwaggerJson method to retrieve the swagger json
+
+            responseFuture.thenAccept(response -> {
+                String report = response.getReport();
+                System.out.println("Generated report JSON: " + report);
+                
+             }).exceptionally(ex -> {
+            System.out.println("An error occurred: " + ex.getMessage());
+            ex.printStackTrace();
+            return null;
+        });
+
+        // // Keep your program running until all futures are resolved
+        // responseFuture.join(); // Block and wait for the future to complete
+        futures.add(responseFuture);
+        }
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Asynchronous total time for LLM Eval" + numberOfRequests + " requests: " + (endTime - startTime) + " ms");
+    }
+```
+

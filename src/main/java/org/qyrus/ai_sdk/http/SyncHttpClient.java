@@ -5,6 +5,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
+import java.util.Collections;
+import java.net.URI;
+
 
 import org.qyrus.ai_sdk.Exceptions.AuthorizationException;
 import org.qyrus.ai_sdk.Exceptions.BadRequestException;
@@ -58,4 +64,32 @@ public class SyncHttpClient {
         return handleResponse(response);
         
     }
+
+    public HttpResponse<String> get(String url, Map<String, String> params, Map<String, String> headers) throws Exception {
+        // Build the URL with query parameters
+        if (params != null && !params.isEmpty()) {
+            String queryParams = params.entrySet().stream()
+                    .map(entry -> entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
+                    .collect(Collectors.joining("&"));
+            url = url + "?" + queryParams;
+        }
+
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET(); // Set the request method to GET
+
+        // Add headers
+        if (headers != null) {
+            headers.forEach(requestBuilder::header);
+        }
+
+        HttpRequest request = requestBuilder.build();
+
+        // Send the request
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        return handleResponse(response); // Handle and return the response
+    }
+
 }
+
+

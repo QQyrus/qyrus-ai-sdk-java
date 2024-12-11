@@ -13,6 +13,8 @@ import org.qyrus.ai_sdk.VisionNova.VisionNovaAccessibilityTests;
 import org.qyrus.ai_sdk.VisionNova.VisionNovaFunctionalTests;
 import org.qyrus.ai_sdk.nova.NovaDescription;
 import org.qyrus.ai_sdk.nova.NovaJira;
+import org.qyrus.ai_sdk.nova.NovaRally;
+import org.qyrus.ai_sdk.LLMEvaluator.LLMEval;
 
 public class SyncClient {
 
@@ -29,18 +31,28 @@ public class SyncClient {
         }
         }
 
+        public class FromRally{
+            public NovaDescription.CreateScenariosResponse create(String rallyURL, String rallyAPIToken, String workspaceName, String ticketId) {
+            return novaRally.create(rallyURL, rallyAPIToken, workspaceName, ticketId);
+        }
+        }
+
         public final FromJira from_jira;
         public final FromDescription from_description;
+        public final FromRally from_rally;
 
         private NovaJira novaJira;
         private NovaDescription novaDescription;
+        private NovaRally novaRally;
 
 
         public NovaWrapper(String apiToken, String baseUrl){
             this.novaJira = new NovaJira(apiToken, baseUrl);
             this.novaDescription = new NovaDescription(apiToken, baseUrl);
+            this.novaRally = new NovaRally(apiToken, baseUrl);
             this.from_jira = new FromJira();
             this.from_description = new FromDescription();
+            this.from_rally = new FromRally();
         }
     }
     
@@ -146,11 +158,24 @@ public class SyncClient {
         }
     }
 
+    public class LLMEvaluatorWrapper{
+        public LLMEval.LLMEvalResponse evaluate(String context, String expected_output, List<String> executed_output, String guardrails){
+            return llmevaluator.evaluate(context, expected_output, executed_output, guardrails);
+        }
+
+        private LLMEval llmevaluator;
+
+        public LLMEvaluatorWrapper(String apiToken, String baseUrl){
+            this.llmevaluator = new LLMEval(apiToken, baseUrl);
+        }
+    }
+
     public NovaWrapper nova;
     public VisionNovaWrapper vision_nova;
     public APIBuilderWrapper api_builder;
     public APIAssertionsWrapper api_assertions;
     public DataAmplifierWrapper data_amplifier;
+    public LLMEvaluatorWrapper llmevaluator;
 
     public SyncClient(String apiToken, String baseUrl) {
         this.nova = new NovaWrapper(apiToken, baseUrl);
@@ -158,5 +183,6 @@ public class SyncClient {
         this.api_builder = new APIBuilderWrapper(apiToken, baseUrl);
         this.api_assertions = new APIAssertionsWrapper(apiToken, baseUrl);
         this.data_amplifier = new DataAmplifierWrapper(apiToken, baseUrl);
+        this.llmevaluator = new LLMEvaluatorWrapper(apiToken, baseUrl);
     }
 }

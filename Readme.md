@@ -160,7 +160,7 @@ private static void createTestScenariosWithRally(){
         SyncClient client = new SyncClient(QYRUS_AI_SDK_API_TOKEN, null);
         String rally_url = "https://rally1.rallydev.com";
         String ticket_id = "US1";
-        String rally_api_key = "Bearer _2xDz9kIvRQy9c2pXYuon5kqVWhihREGklXGOJw9hyo";
+        String rally_api_key = <RALLY-API-KEY>;
         String workspace_name = "RALLY DEMO DATA";
 
         long startTime = System.currentTimeMillis();
@@ -331,7 +331,7 @@ private static void asyncCreateTestScenariosWithRally(){
         AsyncClient client = new AsyncClient(QYRUS_AI_SDK_API_TOKEN, null);
         String rally_url = "https://rally1.rallydev.com";
         String ticket_id = "US1";
-        String rally_api_key = "Bearer _2xDz9kIvRQy9c2pXYuon5kqVWhihREGklXGOJw9hyo";
+        String rally_api_key = <RALLY-API-KEY>;
         String workspace_name = "RALLY DEMO DATA";
 
 

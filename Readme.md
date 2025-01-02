@@ -4,7 +4,7 @@
 
 In the repo folder where pom.xml is present, run this command to create a jar in local mvn cache
 
-> mvc clean install
+> mvn clean install
 
 <br></br>
 # Usage 🚀
